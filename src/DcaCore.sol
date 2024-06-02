@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {AutomationCompatible} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import "@aave/core-v3/contracts/interfaces/IPool.sol";
 
-contract DCAStrategy is AutomationCompatibleInterface, Ownable {
+contract DCAStrategy is AutomationCompatible, Ownable {
     IPool public aavePool;
     ISwapRouter public uniswapRouter;
     address public chainlinkAutomationRegistry;
@@ -32,18 +32,20 @@ contract DCAStrategy is AutomationCompatibleInterface, Ownable {
     event DCAPaused(address indexed user);
     event DCAResumed(address indexed user);
     event DCAExecuted(address indexed user, uint256 amountIn, uint256 amountOut);
+    event ProfitsRealized(address indexed user, uint256 amount);
+    event WithdrawnfromPool(address indexed user, address token, uint256 amount);
 
     constructor(
         address _aavePool,
         address _uniswapRouter,
         address _chainlinkAutomationRegistry
-    ) Ownable (msg.sender){
+    ) Ownable(msg.sender){
         aavePool = IPool(_aavePool);
         uniswapRouter = ISwapRouter(_uniswapRouter);
         chainlinkAutomationRegistry = _chainlinkAutomationRegistry;
     }
 
-    function deposit(address token, uint256 amount) external payable {
+    function deposit(address token, uint256 amount) external {
         require(amount > 0, "Amount must be greater than 0");
         IERC20(token).transferFrom(msg.sender, address(this), amount);
         IERC20(token).approve(address(aavePool), amount);
@@ -62,7 +64,7 @@ contract DCAStrategy is AutomationCompatibleInterface, Ownable {
         require(userBalances[msg.sender][token] >= amount, "Insufficient balance");
         userBalances[msg.sender][token] -= amount;
         aavePool.withdraw(token, amount, msg.sender);
-        emit Withdrawn(msg.sender, token, amount);
+        emit WithdrawnfromPool(msg.sender, token, amount);
     }
 
     function setDCA(address outToken, uint256 dcaAmount, uint256 frequency) external {
@@ -141,13 +143,35 @@ contract DCAStrategy is AutomationCompatibleInterface, Ownable {
             emit DCAExecuted(userAddress, amountIn, amountOut);
         }
     }
+   
+      function takeProfits(address token, uint256 amount) external {
+        require(userBalances[msg.sender][token] >= amount, "Insufficient balance");
+        userBalances[msg.sender][token] -= amount;
+        address user = payable(msg.sender);
+        IERC20(token).transfer(user, amount);
+        emit ProfitsRealized(user, amount);
 
-    function getUserDepositedToken(address userAddress) internal view returns (address) {
+    }
+
+
+    function getUserDepositedToken(address userAddress) public view returns (address) {
+        // This function should return the token address that the user has deposited.
+        // We assume here that users can only deposit one type of token.
         for (uint256 i = 0; i < users.length; i++) {
-            if (userBalances[userAddress][users[i]] > 0) {
-                return users[i];
+            address token = users[i];
+            if (userBalances[userAddress][token] > 0) {
+                return token;
             }
         }
         return address(0);
     }
+    function getuserbalance(address userAddress) public view returns (address , uint256) {
+     {
+        address token = getUserDepositedToken(userAddress);
+        uint256 bal = userBalances[userAddress][token];
+        return (token,bal);    
+
+    }
 }
+
+ }
