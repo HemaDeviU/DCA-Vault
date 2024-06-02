@@ -43,7 +43,7 @@ contract DCAStrategy is AutomationCompatibleInterface, Ownable {
         chainlinkAutomationRegistry = _chainlinkAutomationRegistry;
     }
 
-    function deposit(address token, uint256 amount) external {
+    function deposit(address token, uint256 amount) external payable {
         require(amount > 0, "Amount must be greater than 0");
         IERC20(token).transferFrom(msg.sender, address(this), amount);
         IERC20(token).approve(address(aavePool), amount);
