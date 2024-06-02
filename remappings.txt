@@ -1,0 +1,4 @@
+@openzeppelin/=lib/openzeppelin-contracts/
+@chainlink/=lib/chainlink-brownie-contracts/
+@aave/=lib/aave-v3-core/
+@uniswap/=lib/v3-periphery/

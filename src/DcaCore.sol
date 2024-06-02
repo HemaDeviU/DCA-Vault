@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.23;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@aave/core-v3/contracts/interfaces/IPool.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 contract DCAStrategy is AutomationCompatibleInterface, Ownable {
     IPool public aavePool;
@@ -36,7 +37,7 @@ contract DCAStrategy is AutomationCompatibleInterface, Ownable {
         address _aavePool,
         address _uniswapRouter,
         address _chainlinkAutomationRegistry
-    ) {
+    ) Ownable (msg.sender){
         aavePool = IPool(_aavePool);
         uniswapRouter = ISwapRouter(_uniswapRouter);
         chainlinkAutomationRegistry = _chainlinkAutomationRegistry;
