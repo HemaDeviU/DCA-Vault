@@ -7,6 +7,19 @@
 ```0x01329bde1fe59e0de3e59a3591992b7e4077f8da ```
 **DCAOut:**
 ```0x3217391376376d02fe867ea557e400410624d624 ```
+
+## Tldr;
+I love DCAing, with hopes of being financially stable. But most of the time, I forget to take profits or just wait a little more(really), to make some extra. As much as we take time to SIP every month or week, we often miss taking profits even if the price touches the moon. I wanted to solve this, for me and every other investor.
+
+**What it does**
+
+Let's a user Dollar Cost Average with a strategy. A user can keep sending tokens(like piggy bank) to the contract whenever they save which is supplied to the Aave pool to generate minimal profits until the Keepers trigger the date/time of DCA frequency(to make best use, without keeping the funds idle). Then, the amount is withdrawn from aave and swapped according to the DCA(usually for a blue-chip) pre-set strategy. A user also has an option to DCA-out with a set-strategy that withdraws their holdings to their wallet.The user can also withdraw their amount according to their will as well,anytime.
+
+**How we built it**
+
+Using Solidity, Foundry, Remix,Chainlink, Aave and Uniswap
+
+
 ## Overview
 Money Plant is a decentralized investment strategy platform that automates the process of Dollar-Cost Averaging (DCA) and profit realization for users. By leveraging Aave's lending pool, Uniswap's swapping capabilities, and Chainlink's automation and price feeds, Money Plant ensures that users can effortlessly manage their investments, benefiting from both automated DCA strategies and additional yields from Aave's lending pool.
 
